@@ -1,49 +1,34 @@
-"use strict";
+import React from 'react';
 
-var React = require('react');
+import CellComponent from './cell';
+import Helpers from './helpers';
 
-var CellComponent = require('./cell');
-var Helpers = require('./helpers');
+const RowComponent = props => {
+    const {config, cells, cellClasses, selected, editing, uid} = props;
 
-var RowComponent = React.createClass({    
-    /**
-     * React Render method
-     * @return {[JSX]} [JSX to render]
-     */
-    render: function() {
-        var config = this.props.config,
-            cells = this.props.cells,
-            columns = [],
-            key, uid, selected, cellClasses, i;
-
-        if (!config.columns || cells.length === 0) {
-            return console.error('Table can\'t be initialized without set number of columsn and no data!');
-        }
-
-        for (i = 0; i < cells.length; i = i + 1) {
-            // If a cell is selected, check if it's this one
-            selected = Helpers.equalCells(this.props.selected, [this.props.uid, i]);
-            cellClasses = (this.props.cellClasses && this.props.cellClasses[i]) ? this.props.cellClasses[i] : '';
-
-            key = 'row_' + this.props.uid + '_cell_' + i;
-            uid = [this.props.uid, i];
-            columns.push(<CellComponent key={key} 
-                                       uid={uid}
-                                       value={cells[i]}
-                                       config={config}
-                                       cellClasses={cellClasses}
-                                       onCellValueChange={this.props.onCellValueChange} 
-                                       handleSelectCell={this.props.handleSelectCell}
-                                       handleDoubleClickOnCell={this.props.handleDoubleClickOnCell}
-                                       handleCellBlur={this.props.handleCellBlur}
-                                       spreadsheetId={this.props.spreadsheetId}
-                                       selected={selected} 
-                                       editing={this.props.editing} />
-            );
-        }
-
-        return <tr>{columns}</tr>;
+    if (!config.columns || cells.length === 0) {
+        return console.error('Table can\'t be initialized without set number of columns and no data!');
     }
-});
 
-module.exports = RowComponent;
+    const columns = cells.map((cell, i) => {
+        const cellID = [uid, i];
+        const isSelected = Helpers.equalCells(selected, cellID);
+        const classNames = (cellClasses && cellClasses[i]) ? this.props.cellClasses[i] : '';
+        return (<CellComponent key={'row_' + uid + '_cell_' + i}
+                                   uid={cellID}
+                                   value={cells[i]}
+                                   config={config}
+                                   cellClasses={classNames}
+                                   onCellValueChange={props.onCellValueChange}
+                                   handleSelectCell={props.handleSelectCell}
+                                   handleDoubleClickOnCell={props.handleDoubleClickOnCell}
+                                   handleCellBlur={props.handleCellBlur}
+                                   selected={isSelected}
+                                   editing={editing} />
+        );
+    });
+
+    return (<tr>{columns}</tr>);
+};
+
+export default RowComponent;

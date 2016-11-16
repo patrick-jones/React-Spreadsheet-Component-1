@@ -62,22 +62,6 @@ var Helpers = {
             pow = num / 26 | 0,
             out = mod ? String.fromCharCode(64 + mod) : (--pow, 'Z');
         return pow ? this.countWithLetters(pow) + out : out;
-    },
-
-    /**
-     * Creates a random 5-character id
-     * @return {string} [Somewhat random id]
-     */
-    makeSpreadsheetId: function()
-    {
-        var text = '',
-            possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-
-        for (var i = 0; i < 5; i = i + 1) {
-            text += possible.charAt(Math.floor(Math.random() * possible.length));
-        }
-
-        return text;
     }
 }
 

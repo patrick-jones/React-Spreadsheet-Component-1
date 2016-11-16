@@ -1,0 +1,81 @@
+.sheet {
+    font-family: Arial, Verdana, sans-serif;
+    font-size: 14px;
+
+    border-spacing: 0;
+
+    color: #000;
+    border-width: 0 0 1px 1px;
+    border-style: solid;
+    border-color: #cacaca;
+    table-layout: fixed;
+
+    &:focus {
+        outline: none;
+    }
+
+    .td {
+        position: relative;
+
+        display: inline-block;
+
+        box-sizing: border-box;
+        width: 80px;
+        height: 25px;
+        margin: 0;
+        padding: 0;
+
+        border-width: 1px 1px 0 0;
+        border-style: solid;
+        border-color: #cacaca;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+
+        div {
+            height: 100%;
+        }
+
+        span {
+            line-height: 15px;
+
+            display: inline-block;
+
+            width: calc(100% - 8px);
+            height: calc(100% - 8px);
+            padding: 4px;
+        }
+
+        input {
+            position: absolute;
+            z-index: 100;
+
+            display: inline-block;
+
+            width: calc(100% - 8px);
+            height: calc(100% - 8px);
+            margin: 0;
+            padding: 4px;
+
+            color: #000;
+            border: none;
+            background-color: #fff;
+        }
+
+        input:focus, select:focus, textarea:focus, button:focus {
+            outline: none;
+        }
+    }
+
+    .selected {
+        border: 2px solid #1e6337;
+
+        span {
+            padding: 3px 3px 3px 2px;
+        }
+    }
+
+    .th {
+        background-color: #f0f0f0;
+    }
+}

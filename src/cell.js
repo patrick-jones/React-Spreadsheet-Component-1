@@ -1,10 +1,9 @@
-"use strict";
+import React from 'react';
 
-var React = require('react');
-var ReactDOM = require('react-dom');
+import Dispatcher from './dispatcher';
+import Helpers from './helpers';
 
-var Dispatcher = require('./dispatcher');
-var Helpers = require('./helpers');
+import styles from './sheet.css';
 
 var CellComponent = React.createClass({
 
@@ -24,8 +23,7 @@ var CellComponent = React.createClass({
      */
     render: function() {
         var props = this.props,
-            selected = (props.selected) ? 'selected' : '',
-            ref = 'input_' + props.uid.join('_'),
+            selected = (props.selected) ? styles.selected : '',
             config = props.config || { emptyValueSymbol: ''},
             displayValue = (props.value === '' || !props.value) ? config.emptyValueSymbol : props.value,
             cellClasses = (props.cellClasses && props.cellClasses.length > 0) ? props.cellClasses + ' ' + selected : selected,
@@ -43,13 +41,14 @@ var CellComponent = React.createClass({
                 <input className="mousetrap"
                        onChange={this.handleChange}
                        onBlur={this.handleBlur}
-                       ref={ref}
+                       onKeyDown={e => this.handleKeyDown(e)}
+                       ref={(input) => this.editInput = input}
                        defaultValue={this.props.value} />
             )
         }
 
         return (
-            <td className={cellClasses} ref={props.uid.join('_')}>
+            <td className={styles.td + ' ' + cellClasses}>
                 <div className="reactTableCell">
                     {cellContent}
                     <span onDoubleClick={this.handleDoubleClick} onClick={this.handleClick}>
@@ -66,9 +65,11 @@ var CellComponent = React.createClass({
      * @param  {React previous state} prevState
      */
     componentDidUpdate: function(prevProps, prevState) {
-        if (this.props.editing && this.props.selected) {
-            var node = ReactDOM.findDOMNode(this.refs['input_' + this.props.uid.join('_')]);
-            node.focus();
+        if (this.editInput && this.props.editing && this.props.selected) {
+            this.editInput.focus();
+            if (!prevProps.editing) {
+                this.editInput.select();
+            }
         }
 
         if (prevProps.selected && prevProps.editing && this.state.changedValue !== this.props.value) {
@@ -81,8 +82,7 @@ var CellComponent = React.createClass({
      * @param  {event} e
      */
     handleClick: function (e) {
-        var cellElement = ReactDOM.findDOMNode(this.refs[this.props.uid.join('_')]);
-        this.props.handleSelectCell(this.props.uid, cellElement);
+        this.props.handleSelectCell(this.props.uid);
     },
 
     /**
@@ -90,8 +90,7 @@ var CellComponent = React.createClass({
      * @param  {event} e
      */
     handleHeadClick: function (e) {
-        var cellElement = ReactDOM.findDOMNode(this.refs[this.props.uid.join('_')]);
-        Dispatcher.publish('headCellClicked', cellElement, this.props.spreadsheetId);
+        Dispatcher.publish('headCellClicked', this.props.uid);
     },
 
     /**
@@ -108,11 +107,11 @@ var CellComponent = React.createClass({
      * @param  {event} e
      */
     handleBlur: function (e) {
-        var newValue = ReactDOM.findDOMNode(this.refs['input_' + this.props.uid.join('_')]).value;
+        var newValue = e.target.value;
 
         this.props.onCellValueChange(this.props.uid, newValue, e);
         this.props.handleCellBlur(this.props.uid);
-        Dispatcher.publish('cellBlurred', this.props.uid, this.props.spreadsheetId);
+        Dispatcher.publish('cellBlurred', this.props.uid);
     },
 
     /**
@@ -120,9 +119,15 @@ var CellComponent = React.createClass({
      * @param  {event} e
      */
     handleChange: function (e) {
-        var newValue = ReactDOM.findDOMNode(this.refs['input_' + this.props.uid.join('_')]).value;
-
+        var newValue = e.target.value;
         this.setState({changedValue: newValue});
+    },
+
+    handleKeyDown: function(e) {
+        console.log('keydown', e.which, e.keyCode);
+        if ([32, 37, 38, 39, 40].includes(e.which)) {
+            e.stopPropagation();
+        }
     },
 
     /**
@@ -154,7 +159,7 @@ var CellComponent = React.createClass({
 
             if ((config.isHeadRowString && headRow) || (config.isHeadColumnString && headColumn)) {
                 return (
-                    <th className={cellClasses} ref={this.props.uid.join('_')}>
+                    <th className={styles.th + ' ' + styles.td + cellClasses}>
                         <div>
                             <span onClick={this.handleHeadClick}>
                                 {displayValue}
@@ -164,7 +169,7 @@ var CellComponent = React.createClass({
                 );
             } else {
                 return (
-                    <th ref={this.props.uid.join('_')}>
+                    <th>
                         {displayValue}
                     </th>
                 );
